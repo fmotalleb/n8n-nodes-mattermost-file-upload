@@ -1,3 +1,4 @@
+/* eslint-disable @n8n/community-nodes/icon-prefer-themed-variants */
 import {
 	type IExecuteFunctions,
 	type INodeExecutionData,
@@ -47,6 +48,7 @@ export class Mattermost implements INodeType {
 
 		credentials: [
 			{
+				// eslint-disable-next-line @n8n/community-nodes/no-credential-reuse
 				name: 'mattermostApi',
 				required: true,
 			},
@@ -194,8 +196,8 @@ export class Mattermost implements INodeType {
 					filename,
 				);
 
-				// eslint-disable-next-line @n8n/community-nodes/no-http-request-with-manual-auth
 				const uploadResponse =
+					// eslint-disable-next-line @n8n/community-nodes/no-http-request-with-manual-auth
 					await this.helpers.httpRequest({
 						method: 'POST',
 						url: uploadUrl,
@@ -227,8 +229,8 @@ export class Mattermost implements INodeType {
 				const postUrl =
 					`${baseUrl}/api/v4/posts`;
 
-				// eslint-disable-next-line @n8n/community-nodes/no-http-request-with-manual-auth
 				const postResponse =
+					// eslint-disable-next-line @n8n/community-nodes/no-http-request-with-manual-auth
 					await this.helpers.httpRequest({
 						method: 'POST',
 						url: postUrl,
