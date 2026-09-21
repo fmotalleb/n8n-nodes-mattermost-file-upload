@@ -5,9 +5,9 @@ import type {
 } from 'n8n-workflow';
 
 export class MattermostApi implements ICredentialType {
-	name = 'mattermostApi';
+	name = 'mattermostFilesApi';
 
-	displayName = 'Mattermost API';
+	displayName = 'Mattermost Files API';
 
 	documentationUrl = 'https://developers.mattermost.com/integrate/reference/rest-api/';
 

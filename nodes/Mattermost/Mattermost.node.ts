@@ -47,7 +47,7 @@ export class Mattermost implements INodeType {
 
 		credentials: [
 			{
-				name: 'mattermostApi',
+				name: 'mattermostFilesApi',
 				required: true,
 			},
 		],
@@ -96,7 +96,7 @@ export class Mattermost implements INodeType {
 		const items = this.getInputData();
 		const returnData: INodeExecutionData[] = [];
 
-		const credentials = await this.getCredentials('mattermostApi');
+		const credentials = await this.getCredentials('mattermostFilesApi');
 
 		const baseUrl = String(credentials.baseUrl).replace(/\/+$/, '');
 		const token = String(credentials.token);
