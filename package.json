@@ -15,35 +15,41 @@
         "type": "git",
         "url": "https://github.com/fmotalleb/n8n-nodes-mattermost-file-upload.git"
     },
-   "scripts": {
-		"build": "n8n-node build",
-		"build:watch": "tsc --watch",
-		"dev": "n8n-node dev",
-		"lint": "n8n-node lint",
-		"lint:fix": "n8n-node lint --fix",
-		"release": "n8n-node release",
-		"prepublishOnly": "n8n-node prerelease"
-	},
+    "scripts": {
+        "build": "n8n-node build",
+        "build:watch": "tsc --watch",
+        "dev": "n8n-node dev",
+        "lint": "n8n-node lint",
+        "lint:fix": "n8n-node lint --fix",
+        "release": "n8n-node release",
+        "prepublishOnly": "n8n-node prerelease"
+    },
     "files": [
         "dist"
     ],
     "n8n": {
         "n8nNodesApiVersion": 1,
         "strict": true,
-        "credentials": [
-        ],
+        "credentials": [],
         "nodes": [
-          "dist/nodes/Mattermost/Mattermost.node.js"
+            "dist/nodes/Mattermost/Mattermost.node.js"
         ]
     },
     "devDependencies": {
-        "@n8n/node-cli": "*",
-        "eslint": "9.32.0",
-        "prettier": "3.6.2",
-        "release-it": "^19.0.4",
-        "typescript": "5.9.2"
+        "@n8n/node-cli": "^0.48.5",
+        "eslint": "10.11.0",
+        "prettier": "3.9.8",
+        "release-it": "^21.1.0",
+        "typescript": "7.0.2"
     },
     "peerDependencies": {
         "n8n-workflow": "*"
+    },
+    "allowScripts": {
+        "cpu-features@0.0.10": true,
+        "isolated-vm@7.0.1": true,
+        "ssh2@1.15.0": true,
+        "unrs-resolver@1.12.2": true,
+        "eslint-plugin-n8n-nodes-base@1.16.7": true
     }
 }
