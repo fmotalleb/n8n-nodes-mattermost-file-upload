@@ -1,4 +1,4 @@
-# n8n-nodes-mattermost
+# n8n-nodes-mattermost-file-upload
 
 This is an n8n community node. It lets you use _app/service name_ in your n8n workflows.
 

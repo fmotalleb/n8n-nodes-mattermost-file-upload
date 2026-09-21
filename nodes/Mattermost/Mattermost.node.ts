@@ -47,7 +47,7 @@ export class Mattermost implements INodeType {
 
 		credentials: [
 			{
-				name: 'mattermostFilesApi',
+				name: 'mattermostApi',
 				required: true,
 			},
 		],
@@ -61,7 +61,8 @@ export class Mattermost implements INodeType {
 					{
 						name: 'Upload File',
 						value: 'uploadFile',
-						description: 'Upload a binary file and create a Mattermost post',
+						description:
+							'Upload a binary file and create a Mattermost post',
 						action: 'Upload a file',
 					},
 				],
@@ -86,20 +87,40 @@ export class Mattermost implements INodeType {
 				default: 'data',
 				required: true,
 				placeholder: 'data',
-				description: 'Name of the n8n binary property containing the file',
+				description:
+					'Name of the n8n binary property containing the file',
+			},
+
+			{
+				displayName: 'Caption',
+				name: 'caption',
+				type: 'string',
+				typeOptions: {
+					rows: 4,
+				},
+				default: '',
+				placeholder: 'Optional caption...',
+				description: 'Message to post with the uploaded file',
 			},
 		],
+
 		usableAsTool: true,
 	};
 
-	async execute(this: IExecuteFunctions): Promise<INodeExecutionData[][]> {
+	async execute(
+		this: IExecuteFunctions,
+	): Promise<INodeExecutionData[][]> {
 		const items = this.getInputData();
 		const returnData: INodeExecutionData[] = [];
 
-		const credentials = await this.getCredentials('mattermostFilesApi');
+		const credentials = await this.getCredentials(
+			'mattermostApi',
+		);
 
 		const baseUrl = String(credentials.baseUrl).replace(/\/+$/, '');
-		const token = String(credentials.token);
+		const token = String(credentials.accessToken);
+		const allowUnauthorizedCerts =
+			credentials.allowUnauthorizedCerts === true;
 
 		const operation = this.getNodeParameter('operation', 0);
 
@@ -110,17 +131,29 @@ export class Mattermost implements INodeType {
 			);
 		}
 
-		for (let itemIndex = 0; itemIndex < items.length; itemIndex++) {
+		for (
+			let itemIndex = 0;
+			itemIndex < items.length;
+			itemIndex++
+		) {
 			try {
 				const channelId = String(
 					this.getNodeParameter('channelId', itemIndex),
 				);
 
 				const binaryProperty = String(
-					this.getNodeParameter('binaryProperty', itemIndex),
+					this.getNodeParameter(
+						'binaryProperty',
+						itemIndex,
+					),
 				);
 
-				const binaryData = items[itemIndex].binary?.[binaryProperty];
+				const caption = String(
+					this.getNodeParameter('caption', itemIndex),
+				);
+
+				const binaryData =
+					items[itemIndex].binary?.[binaryProperty];
 
 				if (!binaryData) {
 					throw new NodeOperationError(
@@ -132,23 +165,25 @@ export class Mattermost implements INodeType {
 					);
 				}
 
-				const buffer = await this.helpers.getBinaryDataBuffer(
-					itemIndex,
-					binaryProperty,
-				);
+				const buffer =
+					await this.helpers.getBinaryDataBuffer(
+						itemIndex,
+						binaryProperty,
+					);
 
-				const filename = binaryData.fileName ?? 'file';
+				const filename =
+					binaryData.fileName ?? 'file';
+
 				const mimeType =
-					binaryData.mimeType ?? 'application/octet-stream';
+					binaryData.mimeType ??
+					'application/octet-stream';
 
 				const uploadUrl =
 					`${baseUrl}/api/v4/files` +
-					`?channel_id=${encodeURIComponent(channelId)}`;
+					`?channel_id=${encodeURIComponent(
+						channelId,
+					)}`;
 
-				/*
-				 * n8n's request helper can construct the multipart request.
-				 * The binary is passed as a Buffer together with its metadata.
-				 */
 				const form = new FormData();
 
 				form.append(
@@ -158,21 +193,26 @@ export class Mattermost implements INodeType {
 					}),
 					filename,
 				);
-				
+
 				// eslint-disable-next-line @n8n/community-nodes/no-http-request-with-manual-auth
-				const uploadResponse = await this.helpers.httpRequest({
-					method: 'POST',
-					url: uploadUrl,
-					headers: {
-						Authorization: `Bearer ${token}`,
-					},
-					body: form,
-					json: true,
-				});
+				const uploadResponse =
+					await this.helpers.httpRequest({
+						method: 'POST',
+						url: uploadUrl,
+						headers: {
+							Authorization: `Bearer ${token}`,
+						},
+						body: form,
+						json: true,
+						skipSslCertificateValidation:
+							allowUnauthorizedCerts,
+					});
 
-				const upload = uploadResponse as MattermostUploadResponse;
+				const upload =
+					uploadResponse as MattermostUploadResponse;
 
-				const fileId = upload.file_infos?.[0]?.id;
+				const fileId =
+					upload.file_infos?.[0]?.id;
 
 				if (!fileId) {
 					throw new NodeOperationError(
@@ -184,25 +224,30 @@ export class Mattermost implements INodeType {
 					);
 				}
 
-				const postUrl = `${baseUrl}/api/v4/posts`;
+				const postUrl =
+					`${baseUrl}/api/v4/posts`;
 
 				// eslint-disable-next-line @n8n/community-nodes/no-http-request-with-manual-auth
-				const postResponse = await this.helpers.httpRequest({
-					method: 'POST',
-					url: postUrl,
-					headers: {
-						Authorization: `Bearer ${token}`,
-						'Content-Type': 'application/json',
-					},
-					body: {
-						file_ids: [fileId],
-						message: '',
-						channel_id: channelId,
-					},
-					json: true,
-				});
+				const postResponse =
+					await this.helpers.httpRequest({
+						method: 'POST',
+						url: postUrl,
+						headers: {
+							Authorization: `Bearer ${token}`,
+							'Content-Type': 'application/json',
+						},
+						body: {
+							file_ids: [fileId],
+							message: caption,
+							channel_id: channelId,
+						},
+						json: true,
+						skipSslCertificateValidation:
+							allowUnauthorizedCerts,
+					});
 
-				const post = postResponse as MattermostPostResponse;
+				const post =
+					postResponse as MattermostPostResponse;
 
 				if (!post.id) {
 					throw new NodeOperationError(
@@ -220,12 +265,15 @@ export class Mattermost implements INodeType {
 						fileId,
 						postId: post.id,
 						channelId,
+						caption,
 						fileName: filename,
 						fileSize: buffer.length,
 						mimeType,
-						file: upload.file_infos?.[0] ?? {},
+						file:
+							upload.file_infos?.[0] ?? {},
 						post,
 					} as IDataObject,
+
 					pairedItem: {
 						item: itemIndex,
 					},
@@ -247,8 +295,11 @@ export class Mattermost implements INodeType {
 
 					continue;
 				}
-				
-				throw new NodeOperationError(this.getNode(), error);
+
+				throw new NodeOperationError(
+					this.getNode(),
+					error,
+				);
 			}
 		}
 

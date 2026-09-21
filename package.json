@@ -1,9 +1,9 @@
 {
-    "name": "n8n-nodes-mattermost",
+    "name": "n8n-nodes-mattermost-file-upload",
     "version": "0.1.0",
     "description": "a simple node to upload file to mattermost",
     "license": "MIT",
-    "homepage": "https://github.com/fmotalleb/n8n-nodes-mattermost",
+    "homepage": "https://github.com/fmotalleb/n8n-nodes-mattermost-file-upload",
     "keywords": [
         "n8n-community-node-package"
     ],
@@ -13,7 +13,7 @@
     },
     "repository": {
         "type": "git",
-        "url": "https://github.com/fmotalleb/n8n-nodes-mattermost.git"
+        "url": "https://github.com/fmotalleb/n8n-nodes-mattermost-file-upload.git"
     },
    "scripts": {
 		"build": "n8n-node build",
@@ -31,7 +31,6 @@
         "n8nNodesApiVersion": 1,
         "strict": true,
         "credentials": [
-          "dist/credentials/MattermostApi.credentials.js"
         ],
         "nodes": [
           "dist/nodes/Mattermost/Mattermost.node.js"
